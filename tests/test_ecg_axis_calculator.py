@@ -63,3 +63,107 @@ def test_supervisor_consensus_and_audit():
     assert main(["audit", "--task-id", "CLI-TEST-01"]) == 0
     assert main(["chat", "Explain", "specifications"]) == 0
     assert main(["verify-audit"]) == 0
+
+
+def test_cli_audit_command():
+    """Test the audit CLI command with various parameters."""
+    # Basic audit
+    assert main(["audit", "--task-id", "TEST-AUDIT-01"]) == 0
+
+    # Audit with critical flag
+    assert main(["audit", "--task-id", "TEST-AUDIT-02", "--is-critical"]) == 0
+
+    # Audit with custom metrics
+    assert main([
+        "audit",
+        "--task-id", "TEST-AUDIT-03",
+        "--primary-metric", "25.5",
+        "--secondary-metric", "10.0",
+        "--status-descriptor", "NOMINAL"
+    ]) == 0
+
+
+def test_cli_chat_command():
+    """Test the chat CLI command."""
+    assert main(["chat", "What", "is", "normal", "axis?"]) == 0
+    assert main(["chat", "Explain", "left", "axis", "deviation"]) == 0
+
+
+def test_cli_verify_audit_command():
+    """Test the verify-audit CLI command."""
+    assert main(["verify-audit"]) == 0
+
+
+def test_cli_quick_command():
+    """Test the quick axis CLI command."""
+    assert main(["quick", "--lead-i", "0.5", "--lead-avf", "0.3"]) == 0
+
+
+def test_cli_precise_command():
+    """Test the precise axis CLI command."""
+    assert main([
+        "precise",
+        "--lead1-name", "I",
+        "--lead1-net", "0.5",
+        "--lead2-name", "aVF",
+        "--lead2-net", "0.3"
+    ]) == 0
+
+
+def test_cli_multi_command():
+    """Test the multi-lead CLI command."""
+    assert main(["multi", "--leads", '{"I": 0.5, "aVF": 0.3}']) == 0
+
+
+def test_cli_batch_command(tmp_path):
+    """Test the batch CSV processing CLI command."""
+    import csv
+
+    # Create a temporary input CSV
+    input_csv = tmp_path / "test_input.csv"
+    output_csv = tmp_path / "test_output.csv"
+
+    with open(input_csv, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["lead_i_net", "lead_avf_net"])
+        writer.writerow(["0.5", "0.3"])
+        writer.writerow(["-0.2", "0.8"])
+
+    assert main(["batch", "-i", str(input_csv), "-o", str(output_csv)]) == 0
+    assert output_csv.exists()
+
+
+def test_cli_batch_command_file_not_found():
+    """Test batch command with non-existent input file."""
+    with pytest.raises(FileNotFoundError):
+        main(["batch", "-i", "/nonexistent/path/input.csv"])
+
+
+def test_cli_batch_command_path_traversal():
+    """Test batch command rejects path traversal attempts."""
+    with pytest.raises(ValueError):
+        main(["batch", "-i", "../../../etc/passwd"])
+
+
+def test_audit_trail_integrity():
+    """Test that audit trail maintains integrity after multiple operations."""
+    from agents.base import AuditTrail
+
+    trail = AuditTrail(secret_key="test-key-for-integrity")
+
+    # Log multiple entries
+    trail.log("test", "tester", "TEST_EVENT", {"data": "value1"})
+    trail.log("test", "tester", "TEST_EVENT", {"data": "value2"})
+    trail.log("test", "tester", "TEST_EVENT", {"data": "value3"})
+
+    # Verify integrity
+    assert trail.verify_integrity() is True
+    assert len(trail.get_trail()) == 3
+
+
+def test_phi_guard_redaction():
+    """Test PHI redaction functionality."""
+    text_with_phi = "Patient MRN-12345678 has appointment tomorrow"
+    redacted = PHIGuard.redact_phi(text_with_phi)
+    assert "MRN-12345678" not in redacted
+    assert "[REDACTED_IDENTIFIER]" in redacted

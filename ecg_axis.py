@@ -269,6 +269,19 @@ def calculate_axis_from_leads(leads_dict):
 
 # ── CSV batch processing ─────────────────────────────────────────────
 
+def _validate_safe_path(path, param_name):
+    """Validate that a file path is safe (no path traversal)."""
+    import os
+    # Reject paths with null bytes
+    if "\x00" in path:
+        raise ValueError(f"{param_name} contains null bytes")
+    # Reject path traversal attempts
+    normalized = os.path.normpath(path)
+    if ".." in normalized.split(os.sep):
+        raise ValueError(f"{param_name} contains path traversal sequences")
+    return normalized
+
+
 def process_csv(input_path, output_path):
     """Process a CSV file of ECG lead amplitudes and compute axes.
 
@@ -276,6 +289,14 @@ def process_csv(input_path, output_path):
     Optionally any columns named after leads (I, II, III, aVR, aVL, aVF).
     """
     import csv
+    import os
+
+    # Validate paths
+    input_path = _validate_safe_path(input_path, "input_path")
+    output_path = _validate_safe_path(output_path, "output_path")
+
+    if not os.path.isfile(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
 
     with open(input_path, newline="", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
