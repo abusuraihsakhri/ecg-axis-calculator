@@ -63,3 +63,11 @@ test("CSV validates required columns and malformed quotes", () => {
   assert.throws(() => axis.batchCsv("id,value\na,b\n"), /requires/);
   assert.throws(() => axis.batchCsv('lead_i_net,lead_avf_net\n"1,2\n'), /Unterminated/);
 });
+
+
+test("wrapped 180 degrees and nonzero tiny vectors are consistent", () => {
+  assert.equal(axis.classify(180), axis.classify(-180));
+  assert.equal(axis.classify(540), "extreme_axis");
+  assert.equal(axis.pair("I", 1e-15, "aVF", 1e-15).axis_degrees, 45);
+  assert.equal(axis.multi({I: 1e-15, aVF: 1e-15}).axis_degrees, 45);
+});
