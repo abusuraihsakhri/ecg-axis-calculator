@@ -12,7 +12,7 @@ supervisor = SystemSupervisor(model_provider="mock")
 
 app = FastAPI(
     title="Ecg Axis Calculator API",
-    description="Enterprise Distributed Component Platform (Cardiology & Intensive Care Systems)",
+    description="Optional local synthetic task-audit demonstration; not a diagnostic API",
     version="3.0.0-ENTERPRISE",
 )
 
@@ -23,7 +23,7 @@ class ChatRequest(BaseModel):
 
 @app.get("/health")
 def health():
-    return {"status": "HEALTHY", "service": "ecg-axis-calculator", "domain": "Cardiology & Intensive Care Systems", "standard": "AHA/ACC Guidelines / Surviving Sepsis Campaign", "version": "3.0.0-ENTERPRISE"}
+    return {"status": "HEALTHY", "service": "ecg-axis-calculator", "domain": "Cardiology & Intensive Care Systems", "standard": "Synthetic demonstration rules; not clinically validated", "version": "3.0.0-ENTERPRISE"}
 
 
 @app.get("/metrics")
