@@ -1,7 +1,7 @@
 """
 Pydantic v2 schemas and data definitions for Ecg Axis Calculator.
 Domain: Cardiology & Intensive Care Systems
-Standard: AHA/ACC Guidelines / Surviving Sepsis Campaign
+Standard: Synthetic demonstration rules; not clinically validated
 """
 import datetime
 from enum import Enum
@@ -40,7 +40,7 @@ class AgentAlert(BaseModel):
     summary: str
     technical_details: str
     actionable_remediation: str
-    standard_reference: str = "AHA/ACC Guidelines / Surviving Sepsis Campaign"
+    standard_reference: str = "Synthetic demonstration rules; not clinically validated"
     timestamp: str = Field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc).isoformat())
 
     def to_dict(self) -> Dict[str, Any]:
@@ -58,7 +58,7 @@ class ConsensusDossier(BaseModel):
     total_alerts: int
     critical_alerts_count: int
     alerts: List[AgentAlert]
-    standard_reference: str = "AHA/ACC Guidelines / Surviving Sepsis Campaign"
+    standard_reference: str = "Synthetic demonstration rules; not clinically validated"
     consensus_summary: str
     audit_hash: str
     timestamp: str = Field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc).isoformat())
