@@ -48,7 +48,7 @@ def main() -> None:
             page.locator("#csv-file").set_input_files({
                 "name": "sample.csv",
                 "mimeType": "text/csv",
-                "buffer": b"lead_i_net,lead_avf_net\\n1,-0.1\\n0,0\\n",
+                "buffer": b"lead_i_net,lead_avf_net\n1,-0.1\n0,0\n",
             })
             with page.expect_download() as pending:
                 page.locator("#csv-run").click()
