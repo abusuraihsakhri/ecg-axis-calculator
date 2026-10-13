@@ -167,3 +167,31 @@ def test_phi_guard_redaction():
     redacted = PHIGuard.redact_phi(text_with_phi)
     assert "MRN-12345678" not in redacted
     assert "[REDACTED_IDENTIFIER]" in redacted
+
+
+def test_audit_tampering_is_detected():
+    from agents.base import AuditTrail
+    trail = AuditTrail(secret_key="test-only-key")
+    trail.log("actor", "unit", "EVENT", {"value": 1})
+    trail.log("actor", "unit", "EVENT", {"value": 2})
+    assert trail.verify_integrity()
+    trail.logs[0]["payload_hash"] = "0" * 64
+    assert not trail.verify_integrity()
+
+
+def test_audit_entries_are_not_exposed_mutably():
+    from agents.base import AuditTrail
+    trail = AuditTrail(secret_key="test-only-key")
+    trail.log("actor", "unit", "EVENT", {"value": 1})
+    external = trail.get_trail()
+    external[0]["payload_hash"] = "0" * 64
+    external.clear()
+    assert len(trail.get_trail()) == 1
+    assert trail.verify_integrity()
+
+
+@pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+def test_api_payload_rejects_nonfinite_metrics(bad):
+    from pydantic import ValidationError
+    with pytest.raises(ValidationError):
+        SystemTaskPayload(task_id="TEST", target_identifier="KEY", primary_metric=bad)

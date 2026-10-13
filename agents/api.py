@@ -4,7 +4,7 @@ FastAPI REST API Server for Ecg Axis Calculator.
 from typing import Dict, Any, List
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from .base import AuditLogger, PHIGuard
+from .base import AuditLogger, PHIGuard, SecurityException
 from .models import SystemTaskPayload, ConsensusDossier
 from .supervisor import SystemSupervisor
 
@@ -12,7 +12,7 @@ supervisor = SystemSupervisor(model_provider="mock")
 
 app = FastAPI(
     title="Ecg Axis Calculator API",
-    description="Enterprise Distributed Component Platform (Cardiology & Intensive Care Systems)",
+    description="Optional local synthetic task-audit demonstration; not a diagnostic API",
     version="3.0.0-ENTERPRISE",
 )
 
@@ -23,7 +23,7 @@ class ChatRequest(BaseModel):
 
 @app.get("/health")
 def health():
-    return {"status": "HEALTHY", "service": "ecg-axis-calculator", "domain": "Cardiology & Intensive Care Systems", "standard": "AHA/ACC Guidelines / Surviving Sepsis Campaign", "version": "3.0.0-ENTERPRISE"}
+    return {"status": "HEALTHY", "service": "ecg-axis-calculator", "domain": "Cardiology & Intensive Care Systems", "standard": "Synthetic demonstration rules; not clinically validated", "version": "3.0.0-ENTERPRISE"}
 
 
 @app.get("/metrics")
@@ -37,7 +37,10 @@ def metrics():
 
 @app.post("/api/audit")
 def api_audit(payload: SystemTaskPayload):
-    dossier = supervisor.process_task(payload)
+    try:
+        dossier = supervisor.process_task(payload)
+    except SecurityException:
+        raise HTTPException(status_code=400, detail="Sensitive identifier rejected") from None
     return dossier.to_dict()
 
 
@@ -47,7 +50,7 @@ def api_chat(req: ChatRequest):
         ans = supervisor.query_supervisory_chat(req.query)
         return {"response": ans}
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail="Query rejected") from e
 
 
 @app.get("/api/audit/logs")

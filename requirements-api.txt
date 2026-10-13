@@ -1,0 +1,4 @@
+# API/server only. The core calculator and browser app have no dependencies.
+fastapi>=0.115,<1
+uvicorn>=0.30,<1
+pydantic>=2,<3
