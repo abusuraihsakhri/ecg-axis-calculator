@@ -188,3 +188,10 @@ def test_audit_entries_are_not_exposed_mutably():
     external.clear()
     assert len(trail.get_trail()) == 1
     assert trail.verify_integrity()
+
+
+@pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+def test_api_payload_rejects_nonfinite_metrics(bad):
+    from pydantic import ValidationError
+    with pytest.raises(ValidationError):
+        SystemTaskPayload(task_id="TEST", target_identifier="KEY", primary_metric=bad)
