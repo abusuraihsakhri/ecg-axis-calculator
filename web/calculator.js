@@ -19,8 +19,7 @@
   function classify(axis) {
     if (!Number.isFinite(axis)) return "indeterminate";
     const d = ((axis % 360) + 360) % 360;
-    const angle = d > 180 ? d - 360 : d;
-    if (Math.abs(axis + 180) < 1e-9) return "extreme_axis";
+    const angle = d >= 180 ? d - 360 : d;
     if (angle >= -30 && angle <= 90) return "normal";
     if (angle >= -90 && angle < -30) return "left_axis_deviation";
     if (angle > 90 && angle <= 180) return "right_axis_deviation";
@@ -36,7 +35,8 @@
     if (Math.abs(det) < 1e-12) throw new Error("Lead axes are not independent.");
     const x = (v1 * Math.sin(t2) - v2 * Math.sin(t1)) / det;
     const y = (v2 * Math.cos(t1) - v1 * Math.cos(t2)) / det;
-    const angle = Math.hypot(x, y) < 1e-12 ? null : Math.atan2(y, x) / RAD;
+    const angle = Math.hypot(x, y) <= 1e-12 * Math.max(Math.abs(v1), Math.abs(v2)) ?
+      null : Math.atan2(y, x) / RAD;
     return {axis_degrees: angle === null ? null : Math.round(angle * 10) / 10,
             classification: angle === null ? "indeterminate" : classify(angle),
             leads: [a, b]};
@@ -62,7 +62,9 @@
     const det = cc * ss - cs * cs;
     if (det <= 1e-12) throw new Error("Independent lead axes required.");
     const x = (ss * cb - cs * sb) / det, y = (cc * sb - cs * cb) / det;
-    const axis = Math.hypot(x, y) < 1e-12 ? null : Math.atan2(y, x) / RAD;
+    const scale = Math.max(...Object.values(leads).map(Math.abs));
+    const axis = scale === 0 || Math.hypot(x, y) <= 1e-12 * scale ?
+      null : Math.atan2(y, x) / RAD;
     return {axis_degrees: axis === null ? null : Math.round(axis * 10) / 10,
             classification: axis === null ? "indeterminate" : classify(axis), n_leads: keys.length};
   }
