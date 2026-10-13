@@ -33,3 +33,21 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify published HTML and JavaScript
+        run: |
+          set -euo pipefail
+          site="${{ steps.deployment.outputs.page_url }}"
+          test -n "$site"
+          for attempt in $(seq 1 15); do
+            if curl --fail --location --silent --show-error --max-time 12 "$site" -o /tmp/ecg-page.html \
+              && curl --fail --location --silent --show-error --max-time 12 "${site%/}/calculator.js" -o /tmp/ecg-calculator.js \
+              && grep -q 'id="pair-form"' /tmp/ecg-page.html \
+              && grep -q 'function pair(' /tmp/ecg-calculator.js; then
+              node --check /tmp/ecg-calculator.js
+              echo "Published site and JavaScript asset verified: $site"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Live GitHub Pages HTTP smoke test failed" >&2
+          exit 1
