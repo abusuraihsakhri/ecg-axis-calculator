@@ -239,7 +239,7 @@ def test_multi_lead_uses_least_squares_not_pairwise_average():
 def test_csv_guards(tmp_path):
     from ecg_axis import process_csv
     source = tmp_path / "source.csv"
-    source.write_text("lead_i_net,lead_avf_net\\n1,-0.1\\n", encoding="utf-8")
+    source.write_text("lead_i_net,lead_avf_net\n1,-0.1\n", encoding="utf-8")
     with pytest.raises(ValueError):
         process_csv(source, source)
     with pytest.raises(ValueError):
@@ -250,7 +250,7 @@ def test_csv_batch_correctness(tmp_path):
     import csv
     from ecg_axis import process_csv
     source, output = tmp_path / "in.csv", tmp_path / "out.csv"
-    source.write_text("lead_i_net,lead_avf_net\\n1,-0.1\\n0,0\\n", encoding="utf-8")
+    source.write_text("lead_i_net,lead_avf_net\n1,-0.1\n0,0\n", encoding="utf-8")
     res = process_csv(source, output)
     assert res[0]["classification"] == "normal"
     assert res[1]["classification"] == "indeterminate"
