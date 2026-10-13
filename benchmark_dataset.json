@@ -1,11 +1,11 @@
 {
   "suite_name": "Ecg Axis Calculator Golden Benchmark Test Suite",
   "system_slug": "ecg-axis-calculator",
-  "standard_reference": "CAP / CLSI / NIST Standards",
+  "standard_reference": "Synthetic demonstration cases, not clinical standards",
   "test_cases": [
     {
       "case_id": "BENCH-01-NOMINAL",
-      "description": "Standard nominal flow with parameter values within normal physiological / cryptographic range.",
+      "description": "Synthetic normal path for arbitrary demonstration thresholds.",
       "payload": {
         "task_id": "TASK-BENCH-01",
         "target_identifier": "TARGET-CALIB-OK",
