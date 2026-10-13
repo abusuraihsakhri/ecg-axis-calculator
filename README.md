@@ -15,8 +15,8 @@ Estimate the **frontal-plane mean QRS axis** from signed ECG limb-lead amplitude
 | --- | --- |
 | −30° through +90° | Normal |
 | −90° through below −30° | Left axis deviation |
-| Above +90° through +180° | Right axis deviation |
-| Below −90° toward −180° | Extreme/northwest axis |
+| Above +90° and below +180° | Right axis deviation |
+| Below −90° through −180° (also +180°) | Extreme/northwest axis |
 
 Angle endpoints near ±180° represent the same physical direction. The calculation uses `atan2` to recover both vector components, not a one-argument arctangent. The common positive-I/negative-aVF sign pattern includes **both** a normal borderline interval (0° to −30°) and left deviation; classification uses the calculated angle rather than only the sign quadrant. If both orthogonal components are zero, the result is *indeterminate*.
 
