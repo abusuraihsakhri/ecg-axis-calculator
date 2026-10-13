@@ -36,7 +36,7 @@ class TestClassifyAxis:
     def test_right_axis_deviation(self):
         assert classify_axis(100) == "right_axis_deviation"
         assert classify_axis(150) == "right_axis_deviation"
-        assert classify_axis(180) == "right_axis_deviation"
+        assert classify_axis(180) == "extreme_axis"
 
     def test_extreme_axis(self):
         assert classify_axis(-100) == "extreme_axis"
@@ -257,3 +257,13 @@ def test_csv_batch_correctness(tmp_path):
     with output.open(newline="") as f:
         rows = list(csv.DictReader(f))
     assert rows[1]["axis_degrees"] == "None"
+
+
+def test_wrapped_axis_consistency():
+    assert classify_axis(180) == classify_axis(-180) == classify_axis(540) == "extreme_axis"
+
+
+def test_tiny_nonzero_qrs_vector_is_not_undefined():
+    assert calculate_axis("I", 1e-15, "aVF", 1e-15)["axis_degrees"] == pytest.approx(45.0)
+    result = calculate_axis_from_leads({"I": 1e-15, "aVF": 1e-15})
+    assert result["axis_degrees"] == pytest.approx(45.0)
