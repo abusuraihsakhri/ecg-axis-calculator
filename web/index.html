@@ -1,236 +1,163 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ecg Axis Calculator — Operations Console</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #090d16;
-            --card: #111827;
-            --border: #1f293d;
-            --accent: #3b82f6;
-            --accent-glow: rgba(59, 130, 246, 0.25);
-            --text: #f3f4f6;
-            --text-muted: #9ca3af;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --success: #10b981;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            padding: 2rem;
-            min-height: 100vh;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        .header-title h1 { font-size: 1.6rem; font-weight: 700; color: #fff; }
-        .header-title p { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
-        .badge {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            background: var(--accent-glow);
-            color: var(--accent);
-            border: 1px solid var(--accent);
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 1.5rem;
-        }
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        }
-        .card h2 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem; }
-        input, select, textarea {
-            width: 100%;
-            padding: 0.65rem 0.9rem;
-            background: #0d1322;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: #fff;
-            font-family: inherit;
-            font-size: 0.9rem;
-        }
-        input:focus, textarea:focus { outline: none; border-color: var(--accent); }
-        .btn {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 0.7rem 1.4rem;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            width: 100%;
-        }
-        .btn:hover { background: #2563eb; }
-        .terminal {
-            background: #060911;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            color: #10b981;
-            height: 380px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-        }
-        .metrics-bar {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        .metric-box {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1rem;
-            text-align: center;
-        }
-        .metric-val { font-size: 1.4rem; font-weight: 700; color: #fff; margin-top: 0.25rem; }
-        .metric-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'none'; img-src 'self' data:; base-uri 'none'; form-action 'self'">
+  <meta name="description" content="Estimate the frontal QRS axis from ECG limb-lead amplitudes. Runs locally in your browser.">
+  <title>ECG Axis Calculator — Frontal QRS Axis</title>
+  <style>
+    :root { color-scheme:dark; --bg:#0b1120; --panel:#131e30; --panel2:#18273b; --line:#304259; --fg:#eef4ff; --muted:#aec2d9; --accent:#6ed9c4; --blue:#90bbff; --red:#ffadad; }
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(ellipse at 20% 0%,#162b42 0%,var(--bg) 60%);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5}
+    .wrap{max-width:1120px;margin:0 auto;padding:26px 24px 60px}
+    header{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:26px}
+    .eyebrow{font-size:12px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;font-weight:750;margin:0 0 5px}
+    h1{font-size:clamp(1.7rem,3vw,2.3rem);letter-spacing:-.035em;line-height:1.2;margin:0}
+    h2{font-size:1.12rem;line-height:1.35;margin:0 0 16px}
+    h3{font-size:.95rem;margin:0 0 10px;color:#e2efff}
+    p{margin:0;color:var(--muted)}
+    .subtitle{margin-top:9px;max-width:610px}
+    .privacy{border:1px solid #356657;color:#93e9d4;border-radius:99px;padding:6px 12px;font-size:12px;font-weight:700;white-space:nowrap}
+    .layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:18px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:0 16px 35px #02091522}
+    .tabs{display:flex;gap:8px;padding:4px;background:#0b1628;border-radius:10px;margin-bottom:20px}
+    .tab{flex:1;background:transparent;border:1px solid transparent;color:var(--muted);padding:10px 8px;border-radius:8px;cursor:pointer;font-weight:650}
+    .tab[aria-selected="true"]{background:var(--panel2);color:var(--fg);border-color:var(--line)}
+    label{display:block;font-weight:600;font-size:.88rem;margin-bottom:6px;color:#d0def1}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .entry{margin-bottom:16px}
+    input,select{width:100%;height:43px;border:1px solid #475a74;background:#0b1728;color:#fff;border-radius:8px;font:inherit;padding:8px 11px}
+    input::placeholder{color:#99abc2} input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+    .hint{font-size:.8rem;margin:6px 0 14px}
+    .actions{display:flex;gap:10px;align-items:center}
+    button{cursor:pointer;font:inherit}
+    .primary{background:var(--accent);color:#07241f;border:0;border-radius:9px;padding:12px 16px;font-weight:800}
+    .primary:hover{background:#a4f2e2} .primary:disabled{opacity:.55;cursor:wait}
+    .secondary{border:1px solid #57718e;background:transparent;color:#d9eaff;border-radius:9px;padding:11px 15px;font-weight:700}
+    .secondary:hover{background:#253b54}
+    .mini-label{font-size:.8rem;color:var(--muted);margin-bottom:8px}
+    .result-row{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+    .result-num{font-size:clamp(2.5rem,5vw,4rem);line-height:1.05;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+    .result-tag{border:1px solid #3e7370;border-radius:99px;color:#b3f7e3;padding:5px 10px;font-weight:700;font-size:.81rem}
+    #result-note{font-size:.83rem;margin-top:10px}
+    #error{color:var(--red);border-left:3px solid var(--red);padding:12px;background:#4b242455;border-radius:4px}
+    .dial{width:100%;max-width:320px;display:block;margin:18px auto 0}
+    .dial text{fill:#bdd0e6;font:12px system-ui,sans-serif} .dial .guide{stroke:#506782;stroke-width:1} .dial .rim{fill:#0e192c;stroke:#38516f;stroke-width:2}
+    #axis-ray{transform-origin:150px 150px;transition:transform .2s ease}
+    .notes{border-top:1px solid var(--line);padding-top:15px;margin-top:15px;font-size:.85rem}
+    .notes strong{color:#f4f8ff}
+    .full{margin-top:18px}
+    .batch-row{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+    .batch-row .picker{flex:1 1 280px} .batch-row button{min-height:43px}
+    .batch-row input{padding:8px}
+    #csv-status{margin-top:8px;font-size:.84rem}
+    code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#c2f4e9}
+    footer{font-size:.82rem;color:var(--muted);margin-top:22px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+    a{color:var(--blue)}
+    [hidden]{display:none!important}
+    @media(max-width:780px){.layout{grid-template-columns:1fr}header{align-items:flex-start;flex-direction:column}.card{padding:19px}.wrap{padding:20px 14px 45px}}
+    @media(max-width:380px){.two{grid-template-columns:1fr}.actions{flex-wrap:wrap}.primary,.secondary{flex:1}}
+    @media(prefers-reduced-motion:reduce){#axis-ray{transition:none}}
+  </style>
+  <script src="./calculator.js" defer></script>
 </head>
 <body>
+  <div class="wrap">
+    <header>
+      <div>
+        <p class="eyebrow">Cardiology tools / Frontal plane</p>
+        <h1>ECG Axis Calculator</h1>
+        <p class="subtitle">Calculate the mean QRS axis from signed net limb-lead amplitudes. Select two leads or fit multiple leads.</p>
+      </div>
+      <span class="privacy">Local processing · No uploads</span>
+    </header>
 
-    <div class="header">
-        <div class="header-title">
-            <h1>Ecg Axis Calculator</h1>
-            <p>Domain: Clinical & Cryptographic AI | Standard: CAP / CLSI / NIST Standards | LabMind-Atlas Architecture</p>
+    <main class="layout">
+      <section class="card" aria-labelledby="input-title">
+        <h2 id="input-title">Lead measurements</h2>
+        <div class="tabs" role="tablist" aria-label="Calculation mode">
+          <button id="tab-pair" class="tab" role="tab" type="button" aria-selected="true" aria-controls="pair-form">Two-lead calculation</button>
+          <button id="tab-multi" class="tab" role="tab" type="button" aria-selected="false" aria-controls="multi-form">Multi-lead fit</button>
         </div>
-        <div>
-            <span class="badge">Air-Gapped Active</span>
-            <span class="badge" style="background: rgba(16,185,129,0.2); color: #10b981; border-color: #10b981;">Zero-PHI Guard Active</span>
-        </div>
-    </div>
-
-    <div class="metrics-bar">
-        <div class="metric-box">
-            <div class="metric-label">System Status</div>
-            <div class="metric-val" style="color: var(--success);" id="m-status">OPTIMAL</div>
-        </div>
-        <div class="metric-box">
-            <div class="metric-label">Tasks Processed</div>
-            <div class="metric-val" id="m-tasks">142</div>
-        </div>
-        <div class="metric-box">
-            <div class="metric-label">Audit Blocks Signed</div>
-            <div class="metric-val" id="m-audit">142</div>
-        </div>
-        <div class="metric-box">
-            <div class="metric-label">PHI Interceptions</div>
-            <div class="metric-val" style="color: var(--accent);" id="m-phi">0</div>
-        </div>
-    </div>
-
-    <div class="grid">
-        <div class="card">
-            <h2>⚙️ Dispatch Distributed Component Audit</h2>
-            <div class="form-group">
-                <label>Task / Sample ID</label>
-                <input type="text" id="task_id" value="TASK-2026-LIVE-01">
+        <form id="pair-form" aria-label="Two-lead axis">
+          <div class="two">
+            <div class="entry">
+              <label for="lead-1">First lead</label>
+              <select id="lead-1"><option>I</option><option>II</option><option>III</option><option>aVR</option><option>aVL</option><option>aVF</option></select>
             </div>
-            <div class="form-group">
-                <label>Target Identifier</label>
-                <input type="text" id="target_id" value="SPECIMEN-ALPHA-77">
+            <div class="entry">
+              <label for="value-1">Net QRS amplitude</label>
+              <input id="value-1" type="number" step="any" value="0.87" required aria-describedby="amplitude-hint">
             </div>
-            <div class="form-group">
-                <label>Primary Measurement / Value</label>
-                <input type="number" id="primary_metric" value="29.4" step="0.1">
+            <div class="entry">
+              <label for="lead-2">Second lead</label>
+              <select id="lead-2"><option>I</option><option>II</option><option>III</option><option>aVR</option><option>aVL</option><option selected>aVF</option></select>
             </div>
-            <div class="form-group">
-                <label>Secondary Metric / Kinetic Index</label>
-                <input type="number" id="secondary_metric" value="14.8" step="0.1">
+            <div class="entry">
+              <label for="value-2">Net QRS amplitude</label>
+              <input id="value-2" type="number" step="any" value="0.5" required aria-describedby="amplitude-hint">
             </div>
-            <div class="form-group">
-                <label>Status / Phenotype Descriptor</label>
-                <input type="text" id="status_descriptor" value="DISCORDANT_ANOMALY">
-            </div>
-            <div class="form-group">
-                <label><input type="checkbox" id="is_critical" checked> Trigger Emergency / Critical Flag</label>
-            </div>
-            <button class="btn" onclick="runAudit()">Execute Distributed Component Audit</button>
+          </div>
+          <p id="amplitude-hint" class="hint">Use signed net QRS amplitude (typically R − S, accounting for Q when present). Use the same unit for all leads (mm or mV).</p>
+          <div class="actions"><button class="primary" type="submit">Calculate axis</button><button class="secondary" type="button" id="sample">Load example</button></div>
+        </form>
+        <form id="multi-form" aria-label="Multi-lead axis" hidden>
+          <p class="hint">Leave unmeasured leads blank; at least two different frontal leads are required.</p>
+          <div class="two">
+            <div class="entry"><label for="multi-I">Lead I (0°)</label><input id="multi-I" type="number" step="any" placeholder="e.g. 0.87"></div>
+            <div class="entry"><label for="multi-II">Lead II (+60°)</label><input id="multi-II" type="number" step="any" placeholder="optional"></div>
+            <div class="entry"><label for="multi-III">Lead III (+120°)</label><input id="multi-III" type="number" step="any" placeholder="optional"></div>
+            <div class="entry"><label for="multi-aVR">aVR (−150°)</label><input id="multi-aVR" type="number" step="any" placeholder="optional"></div>
+            <div class="entry"><label for="multi-aVL">aVL (−30°)</label><input id="multi-aVL" type="number" step="any" placeholder="optional"></div>
+            <div class="entry"><label for="multi-aVF">aVF (+90°)</label><input id="multi-aVF" type="number" step="any" placeholder="e.g. 0.50"></div>
+          </div>
+          <button class="primary" type="submit">Fit QRS axis</button>
+        </form>
+      </section>
+
+      <section class="card" aria-labelledby="result-title">
+        <h2 id="result-title">Axis estimate</h2>
+        <div id="result" role="status" aria-live="polite">
+          <p class="mini-label">Frontal-plane QRS axis</p>
+          <div class="result-row"><span class="result-num" id="axis-value">29.9°</span><span id="axis-class" class="result-tag">Normal axis</span></div>
+          <p id="result-note">Example values · Frontal plane, conventional adult thresholds.</p>
         </div>
-
-        <div class="card">
-            <h2>📊 Real-Time Consensus Dossier & Audit Log</h2>
-            <div class="terminal" id="outputConsole">// Ecg Axis Calculator Operations Console Ready
-// Connection established with Air-Gapped Supervisor
-// Cryptographic HMAC-SHA256 audit ledger loaded.
-// Ready for live task payload dispatch...</div>
+        <p id="error" role="alert" hidden></p>
+        <svg viewBox="0 0 300 300" class="dial" role="img" aria-label="Hexaxial reference circle: lead I to right, aVF downward; arrow shows calculated QRS axis">
+          <circle class="rim" cx="150" cy="150" r="110"/>
+          <line class="guide" x1="28" y1="150" x2="272" y2="150"/>
+          <line class="guide" x1="150" y1="28" x2="150" y2="272"/>
+          <path class="guide" fill="none" d="M55 95L245 205M55 205L245 95"/>
+          <circle cx="150" cy="150" r="3" fill="#c7deef"/>
+          <g id="axis-ray" style="transform:rotate(29.9deg)">
+            <line x1="150" y1="150" x2="243" y2="150" stroke="#6ed9c4" stroke-width="5" stroke-linecap="round"/>
+            <path d="M246 150L232 142L232 158Z" fill="#6ed9c4"/>
+          </g>
+          <text x="266" y="145">I</text><text x="153" y="287">aVF</text>
+          <text x="36" y="145">±180°</text><text x="135" y="22">−90°</text>
+          <text x="241" y="216">+60°</text><text x="58" y="210">+120°</text>
+        </svg>
+        <div class="notes">
+          <p><strong>Reference intervals (adults):</strong> normal −30° to +90°; left deviation −90° to &lt;−30°; right deviation &gt;+90° to +180°; extreme axis below −90° to −180°. These are conventional boundaries, not a diagnosis.</p>
         </div>
-    </div>
+      </section>
+    </main>
 
-    <script>
-        async function runAudit() {
-            const consoleEl = document.getElementById('outputConsole');
-            consoleEl.innerText = "// Dispatching task across specialized workers...
-// Invoking InvariantQCWorker, SafetyEscalationWorker, ProtocolWorker...";
+    <section class="card full" aria-labelledby="batch-title">
+      <h2 id="batch-title">Batch CSV processing</h2>
+      <p class="hint">Import CSV with <code>lead_i_net,lead_avf_net</code> columns or any two named limb-lead columns (<code>I,II,III,aVR,aVL,aVF</code>). Output contains per-row results or errors. Maximum 2 MB / 10,000 rows.</p>
+      <div class="batch-row">
+        <div class="picker"><label for="csv-file">CSV file</label><input type="file" id="csv-file" accept=".csv,text/csv"></div>
+        <button type="button" id="csv-run" class="secondary">Process &amp; download CSV</button>
+      </div>
+      <p id="csv-status" role="status" aria-live="polite">No file selected. All parsing and calculations stay on this device.</p>
+    </section>
 
-            const payload = {
-                task_id: document.getElementById('task_id').value,
-                target_identifier: document.getElementById('target_id').value,
-                primary_metric: parseFloat(document.getElementById('primary_metric').value),
-                secondary_metric: parseFloat(document.getElementById('secondary_metric').value),
-                status_descriptor: document.getElementById('status_descriptor').value,
-                is_critical_flag: document.getElementById('is_critical').checked
-            };
-
-            try {
-                const res = await fetch('/api/audit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                consoleEl.innerText = JSON.stringify(data, null, 2);
-                document.getElementById('m-tasks').innerText = parseInt(document.getElementById('m-tasks').innerText) + 1;
-                document.getElementById('m-audit').innerText = parseInt(document.getElementById('m-audit').innerText) + 1;
-            } catch (err) {
-                consoleEl.innerText = "// Offline / Simulation Output:\n" + JSON.stringify({
-                    dossier_id: "DOSSIER-SIM-" + Math.floor(Math.random()*10000),
-                    system: "ecg-axis-calculator",
-                    domain: "Clinical & Cryptographic AI",
-                    task_id: payload.task_id,
-                    overall_urgency: payload.is_critical_flag ? "CRITICAL_STAT_PANIC" : "ELEVATED_RISK",
-                    integrity_status: "DISCORDANT_ANOMALY",
-                    alerts: [
-                        { worker: "InvariantQCWorker", alert: "Primary metric exceeds upper reference bound" },
-                        { worker: "SafetyEscalationWorker", alert: "Critical emergency interlock flag active" }
-                    ],
-                    audit_hash: "HMAC_SHA256_e83f9a72b941d6c381f9"
-                }, null, 2);
-            }
-        }
-    </script>
+    <footer>
+      <span>Educational/research tool only. Review the original ECG and clinical context; not intended for autonomous diagnosis or treatment.</span>
+      <a href="https://github.com/abusuraihsakhri/ecg-axis-calculator" rel="noopener noreferrer">Source and Python CLI</a>
+    </footer>
+  </div>
 </body>
 </html>
