@@ -1,5 +1,7 @@
 # ECG Axis Calculator
 
+### [Open the Live Application →](https://abusuraihsakhri.github.io/ecg-axis-calculator/)
+
 Estimate the **frontal-plane mean QRS axis** from signed ECG limb-lead amplitudes. Includes a standalone browser calculator, dependency-free Python calculation functions and CLI, CSV batch processing, and a separate demonstration FastAPI supervisor.
 
 ## What works
