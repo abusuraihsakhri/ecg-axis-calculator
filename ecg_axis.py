@@ -253,6 +253,7 @@ def calculate_axis_from_leads(leads_dict):
 def _validate_safe_path(path, param_name):
     """Validate that a file path is safe (no path traversal)."""
     import os
+    path = os.fspath(path)
     # Reject paths with null bytes
     if "\x00" in path:
         raise ValueError(f"{param_name} contains null bytes")
