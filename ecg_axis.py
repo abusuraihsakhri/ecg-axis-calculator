@@ -84,18 +84,16 @@ def classify_axis(degrees):
     Boundaries:
         Normal:    -30 ≤ axis ≤ +90
         LAD:       -90 ≤ axis < -30
-        RAD:       +90 < axis ≤ +180
-        Extreme:   -180 ≤ axis < -90
+        RAD:       +90 < axis < +180
+        Extreme:   -180 ≤ axis < -90, with +180 mapped to -180
     """
     if not math.isfinite(degrees):
         raise ValueError("Axis must be finite")
     # Normalize to -180 to +180 range
     d = degrees % 360
-    if d > 180:
+    if d >= 180:
         d -= 360
-    # Handle exact -180 boundary (180 % 360 = 180, which is RAD; but -180 should be extreme)
-    if degrees == -180 or abs(degrees + 180) < 1e-9:
-        return "extreme_axis"
+    # +180 and -180 denote the same direction and must classify identically.
 
     if -30 <= d <= 90:
         return "normal"
@@ -146,7 +144,7 @@ def _precise_axis_from_two_leads(val1, angle1_deg, val2, angle2_deg):
         raise ValueError("Lead axes are parallel and cannot define a unique QRS axis")
     x = (val1 * math.sin(a2) - val2 * math.sin(a1)) / determinant
     y = (val2 * math.cos(a1) - val1 * math.cos(a2)) / determinant
-    if math.hypot(x, y) < 1e-12:
+    if math.hypot(x, y) <= 1e-12 * max(abs(val1), abs(val2)):
         return float("nan")
     return math.degrees(math.atan2(y, x))
 
@@ -230,7 +228,10 @@ def calculate_axis_from_leads(leads_dict):
         raise ValueError("Lead measurements do not span two independent axes")
     x = (ss * cb - cs * sb) / determinant
     y = (cc * sb - cs * cb) / determinant
-    axis = math.degrees(math.atan2(y, x)) if math.hypot(x, y) >= 1e-12 else None
+    vector_scale = max(abs(amplitude) for amplitude in valid_leads.values())
+    axis = (math.degrees(math.atan2(y, x))
+            if vector_scale > 0 and math.hypot(x, y) > 1e-12 * vector_scale
+            else None)
 
     names = sorted(valid_leads)
     pairwise = []
